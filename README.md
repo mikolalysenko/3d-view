@@ -1,6 +1,13 @@
 3d-view
 =======
+This module is a generic interface which synchronizes several existing view interactions
 
+* [turntable-camera-controller](https://github.com/mikolalysenko/turntable-camera-controller)
+* [orbit-camera-controller](https://github.com/mikolalysenko/orbit-camera-controller)
+* [free-camera-controller](https://github.com/mikolalysenko/free-camera-controller)
+* [matrix-camera-controller](https://github.com/mikolalysenko/orbit-camera-controller)
+
+Each camera controller proceeds by appending events onto a log of 
 
 # API
 
@@ -8,9 +15,13 @@
 
 #### `var camera = require('3d-view')([options])`
 
+
 ## Methods
 
 #### `camera.getMatrix(t[, out])`
+Computes the state of the camera matrix at time `t`
+
+* `t` is the time 
 
 #### `camera.idle(t)`
 

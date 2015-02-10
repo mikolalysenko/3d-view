@@ -1,0 +1,25 @@
+{
+  "name": "3d-view",
+  "version": "1.0.0",
+  "description": "3D camera view controller",
+  "main": "view.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikolalysenko/3d-view.git"
+  },
+  "keywords": [
+    "3d",
+    "view",
+    "camera",
+    "controller"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/3d-view/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/3d-view"
+}
