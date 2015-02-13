@@ -61,6 +61,28 @@ zoomControl.max = 1000
 zoomControl.value = 50
 appendItem('Distance:', zoomControl)
 
+var rotateSensitivity = document.createElement('input')
+rotateSensitivity.type = 'range'
+rotateSensitivity.min = -10
+rotateSensitivity.max = 10
+rotateSensitivity.value = 0
+appendItem('Rotation Sensitivity:', rotateSensitivity)
+
+var zoomSensitivity = document.createElement('input')
+zoomSensitivity.type = 'range'
+zoomSensitivity.min = -10
+zoomSensitivity.max = 10
+zoomSensitivity.value = 0
+appendItem('Zoom Sensitivity:', zoomSensitivity)
+
+var flipXControl = document.createElement('input')
+flipXControl.type = 'checkbox'
+appendItem('Flip X:', flipXControl)
+
+var flipYControl = document.createElement('input')
+flipYControl.type = 'checkbox'
+appendItem('Flip Y:', flipYControl)
+
 var modes = ['turntable', 'orbit', 'matrix']
 var modeSelect = document.createElement('select')
 for(var i=0; i<modes.length; ++i) {
@@ -120,13 +142,18 @@ modeSelect.addEventListener('change', function(ev) {
 canvas.addEventListener('mousemove', function(ev) {
   var dx = (ev.clientX - lastX) / gl.drawingBufferWidth
   var dy = -(ev.clientY - lastY) / gl.drawingBufferHeight
+  var w = Math.exp(+rotateSensitivity.value)
+  var flipX = flipXControl.checked
+  var flipY = flipYControl.checked
   if(ev.which === 1) {
     if(ev.shiftKey) {
-      camera.rotate(now(), 0, 0, 0.1 * dx * Math.sqrt(camera.getDistance(now())))
+      camera.rotate(now(), 0, 0, w*dx)
     } else if(ev.ctrlKey) {
       camera.translate(now(), dx, dy, 0)
     } else {
-      camera.rotate(now(), dx, dy)
+      if(flipX) { dx = -dx }
+      if(flipY) { dy = -dy }
+      camera.rotate(now(), w*dx, w*dy)
     }
   }
   if(ev.which === 3) {
@@ -137,7 +164,8 @@ canvas.addEventListener('mousemove', function(ev) {
 })
 
 canvas.addEventListener('wheel', function(e) {
-  camera.pan(now(), 0, 0, e.deltaY)
+  var w = +zoomSensitivity.value
+  camera.pan(now(), 0, 0, Math.exp(w) * e.deltaY)
 })
 
 lookAtButton.addEventListener('click', function() {
@@ -192,5 +220,6 @@ function render() {
     '</td></tr><tr><td>' + cameraParams.view.slice(4,8).join('</td><td>') + 
     '</td></tr><tr><td>' + cameraParams.view.slice(8,12).join('</td><td>') + 
     '</td></tr><tr><td>' + cameraParams.view.slice(12,16).join('</td><td>') + 
-    '</td></tr></table>'
+    '</td></tr></table><p>Rotate sensitivity:' + Math.exp(rotateSensitivity.value) +
+    '</p><p>Zoom sensitivity:' + Math.exp(zoomSensitivity.value) + '</p>'
 }
