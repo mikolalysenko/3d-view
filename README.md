@@ -6,7 +6,7 @@ This module is a generic interface which synchronizes several existing view inte
 * [orbit-camera-controller](https://github.com/mikolalysenko/orbit-camera-controller)
 * [matrix-camera-controller](https://github.com/mikolalysenko/orbit-camera-controller)
 
-Each camera controller proceeds by appending events onto a log of 
+Each camera controller proceeds by appending events onto a log.  The current camera state is obtained by interpolating between these events.
 
 # API
 
