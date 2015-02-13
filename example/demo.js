@@ -22,12 +22,40 @@ controlDiv.style.left = '10px'
 controlDiv.style.top = '10px'
 document.body.appendChild(controlDiv)
 
+var commandList = [
+  'Rotate - Hold left mouse',
+  'Roll - Hold shift + left mouse',
+  'Pan - Hold right mouse',
+  'Zoom - Mouse wheel',
+  'Translate - Hold control + left mouse'
+]
+
+commandList.forEach(function(str) {
+  var container = document.createElement('p')
+  container.appendChild(document.createTextNode(str))
+  controlDiv.appendChild(container)
+})
+
+function appendItem(label, item) {
+  var container = document.createElement('p')
+  container.appendChild(document.createTextNode(label))
+  container.appendChild(item)
+  controlDiv.appendChild(container)
+}
+
 var delayControl = document.createElement('input')
 delayControl.type = 'range'
 delayControl.min = 0
 delayControl.max = 200
 delayControl.value = 30
-controlDiv.appendChild(delayControl)
+appendItem('Delay:', delayControl)
+
+var zoomControl = document.createElement('input')
+zoomControl.type = 'range'
+zoomControl.min = 1
+zoomControl.max = 1000
+zoomControl.value = 50
+appendItem('Distance:', zoomControl)
 
 var modes = ['turntable', 'orbit', 'matrix']
 var modeSelect = document.createElement('select')
@@ -37,7 +65,7 @@ for(var i=0; i<modes.length; ++i) {
   option.value = modes[i]
   modeSelect.add(option)
 }
-controlDiv.appendChild(modeSelect)
+appendItem('Mode:', modeSelect)
 
 var lookAtButton = document.createElement('input')
 lookAtButton.type = 'submit'
@@ -68,7 +96,8 @@ var camera = createCamera({
   center:  [
     0.5*(bounds[0][0]+bounds[1][0]),
     0.5*(bounds[0][1]+bounds[1][1]),
-    0.5*(bounds[0][2]+bounds[1][2]) ]
+    0.5*(bounds[0][2]+bounds[1][2]) ],
+  distanceLimits: [1, 1000]
 })
 
 //Hook event listeners
@@ -88,7 +117,13 @@ canvas.addEventListener('mousemove', function(ev) {
   var dx = (ev.clientX - lastX) / gl.drawingBufferWidth
   var dy = (ev.clientY - lastY) / gl.drawingBufferHeight
   if(ev.which === 1) {
-    camera.rotate(now(), dx, dy)
+    if(ev.shiftKey) {
+      camera.rotate(now(), 0, 0, dx)
+    } else if(ev.ctrlKey) {
+      camera.translate(now(), dx, dy, 0)
+    } else {
+      camera.rotate(now(), dx, dy)
+    }
   }
   if(ev.which === 3) {
     camera.pan(now(), dx, dy)
@@ -98,7 +133,7 @@ canvas.addEventListener('mousemove', function(ev) {
 })
 
 canvas.addEventListener('wheel', function(e) {
-  camera.zoom(now(), e.deltaY)
+  camera.pan(now(), 0, 0, e.deltaY)
 })
 
 lookAtButton.addEventListener('click', function() {
@@ -108,6 +143,10 @@ lookAtButton.addEventListener('click', function() {
       0.5*(bounds[0][1]+bounds[1][1]),
       0.5*(bounds[0][2]+bounds[1][2]) ],
     [ 0, 1, 0 ])
+})
+
+zoomControl.addEventListener('change', function() {
+  camera.setDistance(now(), +zoomControl.value)
 })
 
 //Redraw frame
@@ -135,9 +174,14 @@ function render() {
   axes.draw(cameraParams)
   mesh.draw(cameraParams)
 
+  var d = camera.getDistance(t)
+  if(d !== +zoomControl.value) {
+    zoomControl.value = d
+  }
+
   //Write out status stuff
   statusElement.innerHTML = 
-    '<p>Zoom=' + camera.getZoom(t-2*delay) + 
+    '<p>Distance=' + camera.getDistance(t-2*delay) + 
     '</p><p>Up=[' + camera.getUp(t-2*delay).join() + 
     ']</p><p>Eye=[' + camera.getEye(t-2*delay).join() + 
     ']</p><p>Matrix=</p><table><tr><td>' + cameraParams.view.slice(0,4).join('</td><td>') + 

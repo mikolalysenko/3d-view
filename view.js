@@ -28,22 +28,18 @@ var COMMON_METHODS = [
   ['idle', 1],
   ['lookAt', 4],
   ['rotate', 4],
-  ['zoom', 2],
   ['pan', 4],
   ['translate', 4],
-  ['setZoom', 2],
-  ['setMatrix', 2]
+  ['setMatrix', 2],
+  ['setDistance', 2]
 ]
 
 var ACCESS_METHODS = [
   ['getUp', 3],
   ['getEye', 3],
+  ['getCenter', 3],
   ['getMatrix', 16]
 ]
-
-proto.getZoom = function(t) {
-  return this._active.getZoom(t)
-}
 
 COMMON_METHODS.forEach(function(method) {
   var name = method[0]
@@ -62,6 +58,16 @@ ACCESS_METHODS.forEach(function(method) {
   proto[name] = new Function('t', 'out', code)
 })
 
+proto.getDistance = function(t) {
+  return this._active.getDistance(t)
+}
+proto.getDistanceLimits = function(out) {
+  return this._active.getDistanceLimits(out)
+}
+proto.setDistanceLimits = function(lo, hi) {
+  return this._active.setDistanceLimits(lo, hi)
+}
+
 proto.setMode = function(mode) {
   if(mode === this._mode) {
     return
@@ -74,9 +80,16 @@ proto.setMode = function(mode) {
   var next  = this._controllerList[idx]
   var lastT = Math.max(prev.lastT(), next.lastT())
 
+  if(this._mode !== 'matrix') {
+    next.lookAt(lastT,
+      prev.getCenter(lastT),
+      prev.getEye(lastT),
+      prev.getUp(lastT))
+  }
+
   prev.getMatrix(lastT, SCRATCH)
   next.setMatrix(lastT, SCRATCH)
-
+  
   this._active = next
   this._mode   = mode
 }

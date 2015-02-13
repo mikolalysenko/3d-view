@@ -18,7 +18,6 @@ Each camera controller proceeds by appending events onto a log of
 
 #### `var camera = require('3d-view')([options])`
 
-
 ## Methods
 
 #### `camera.getMatrix(t[, out])`
@@ -63,12 +62,6 @@ Rotates the camera incrementally by some amount
 * `pitch` is the amount to rotate by along x-axis in radians
 * `roll` is the amount to rotate by along z-axis in radians
 
-#### `camera.zoom(t, dr)`
-Zooms the camera toward target
-
-* `t` is the time of the event
-* `dr` is the amount to move incrementally
-
 #### `camera.pan(t, dx, dy, dz)`
 Pans the camera in local (view relative) coordinates
 
@@ -96,6 +89,23 @@ Gets the up vector of the camera
 **Returns** the up vector
 
 #### `camera.getEye(t[, out])`
+Returns the position of the camera in world coordinates
+
+* `t` is the time to sample
+* `out` is storage for the result
+
+**Returns** the position of the camera
+
+#### `camera.getCenter(t[, out])`
+Returns the target of the camera
+
+#### `camera.getDistance(t)`
+
+#### `camera.setDistance(t, r)`
+
+#### `camera.setDistanceLimits(lo, hi)`
+
+#### `camera.getDistanceLimits([out])`
 
 # License
 (c) 2015 Mikola Lysenko. MIT License
