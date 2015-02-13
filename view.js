@@ -108,7 +108,7 @@ function createViewController(options) {
 
   var turntable = createTurntable()
   var orbit     = createOrbit()
-  var matrix    = createOrbit()
+  var matrix    = createMatrix()
 
   turntable.setDistanceLimits(limits[0], limits[1])
   turntable.lookAt(0, eye, center, up)
