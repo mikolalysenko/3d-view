@@ -30,5 +30,10 @@
     "gl-mat4": "^1.1.2",
     "gl-simplicial-complex": "^3.0.2",
     "right-now": "^1.0.0"
+  },
+  "dependencies": {
+    "matrix-camera-controller": "^1.0.0",
+    "orbit-camera-controller": "^2.0.0",
+    "turntable-camera-controller": "^2.0.0"
   }
 }
