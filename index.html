@@ -35,10 +35,14 @@ var commandList = [
   'Translate - Hold control + left mouse'
 ]
 
+var commandContainer = document.createElement('div')
+commandContainer.style['font-size'] = '75%'
+controlDiv.appendChild(commandContainer)
+
 commandList.forEach(function(str) {
   var container = document.createElement('p')
   container.appendChild(document.createTextNode(str))
-  controlDiv.appendChild(container)
+  commandContainer.appendChild(container)
 })
 
 function appendItem(label, item) {
@@ -97,11 +101,11 @@ var axes = createAxes(gl, {
 //Set up camera
 var projectionMatrix = new Array(16)
 var camera = createCamera({
-  radius: 50,
   center:  [
     0.5*(bounds[0][0]+bounds[1][0]),
     0.5*(bounds[0][1]+bounds[1][1]),
     0.5*(bounds[0][2]+bounds[1][2]) ],
+  eye: [0, 0, bounds[1][2]],
   distanceLimits: [1, 1000]
 })
 
@@ -120,10 +124,10 @@ modeSelect.addEventListener('change', function(ev) {
 
 canvas.addEventListener('mousemove', function(ev) {
   var dx = (ev.clientX - lastX) / gl.drawingBufferWidth
-  var dy = (ev.clientY - lastY) / gl.drawingBufferHeight
+  var dy = -(ev.clientY - lastY) / gl.drawingBufferHeight
   if(ev.which === 1) {
     if(ev.shiftKey) {
-      camera.rotate(now(), 0, 0, dx)
+      camera.rotate(now(), 0, 0, 0.1 * dx * Math.sqrt(camera.getDistance(now())))
     } else if(ev.ctrlKey) {
       camera.translate(now(), dx, dy, 0)
     } else {
@@ -16231,7 +16235,6 @@ proto.set = function(t) {
   var bounds    = this.bounds
   var lo        = bounds[0]
   var hi        = bounds[1]
-  console.log(lo, hi)
   this._time.push(t)
   for(var i=d; i>0; --i) {
     state.push(clamp(lo[i-1], hi[i-1], arguments[i]))
@@ -17574,6 +17577,7 @@ function ViewController(controllers, mode) {
     this._mode   = 'turntable'
     this._active = controllers.turntable
   }
+  this.modes = this._controllerNames
 }
 
 var proto = ViewController.prototype
@@ -17586,6 +17590,7 @@ var COMMON_METHODS = [
   ['pan', 4],
   ['translate', 4],
   ['setMatrix', 2],
+  ['setDistanceLimits', 2],
   ['setDistance', 2]
 ]
 
@@ -17618,9 +17623,6 @@ proto.getDistance = function(t) {
 }
 proto.getDistanceLimits = function(out) {
   return this._active.getDistanceLimits(out)
-}
-proto.setDistanceLimits = function(lo, hi) {
-  return this._active.setDistanceLimits(lo, hi)
 }
 
 proto.setMode = function(mode) {
@@ -17655,11 +17657,29 @@ proto.getMode = function() {
 
 function createViewController(options) {
   options = options || {}
+
+  var eye       = options.eye    || [0,0,1]
+  var center    = options.center || [0,0,0]
+  var up        = options.up     || [0,1,0]
+  var limits    = options.distanceLimits || [0, Infinity]
+  var mode      = options.mode   || 'turntable'
+
+  var turntable = createTurntable()
+  var orbit     = createOrbit()
+  var matrix    = createOrbit()
+
+  turntable.setDistanceLimits(limits[0], limits[1])
+  turntable.lookAt(0, eye, center, up)
+  orbit.setDistanceLimits(limits[0], limits[1])
+  orbit.lookAt(0, eye, center, up)
+  matrix.setDistanceLimits(limits[0], limits[1])
+  matrix.lookAt(0, eye, center, up)
+
   return new ViewController({
-    turntable: createTurntable(options),
-    orbit: createOrbit(options),
-    matrix: createMatrix(options),
-  }, options || 'turntable')
+    turntable: turntable,
+    orbit: orbit,
+    matrix: matrix
+  }, mode)
 }
 },{"matrix-camera-controller":156,"orbit-camera-controller":190,"turntable-camera-controller":200}],202:[function(require,module,exports){
 /*!
