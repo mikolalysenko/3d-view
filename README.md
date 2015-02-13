@@ -10,9 +10,122 @@ Each camera controller proceeds by appending events onto a log of
 
 # API
 
-```javascript
-```
+[Try a more complete demo here](https://mikolalysenko.github.io/3d-view)
 
+```javascript
+var now            = require('right-now')
+var bunny          = require('bunny')
+var perspective    = require('gl-mat4/perspective')
+var fit            = require('canvas-fit')
+var createContext  = require('gl-context')
+var createAxes     = require('gl-axes')
+var createMesh     = require('gl-simplicial-complex')
+var createCamera   = require('3d-view')
+
+//Set up WebGL
+var canvas = document.createElement('canvas')
+document.body.appendChild(canvas)
+window.addEventListener('resize', fit(canvas), false)
+var gl = createContext(canvas, {}, render)
+
+//Create objects for rendering
+var bounds = [[-10,-10,-10], [10,10,10]]
+var mesh = createMesh(gl, {
+    cells: bunny.cells,
+    positions: bunny.positions,
+    colormap: 'jet'
+  })
+var axes = createAxes(gl, {
+    bounds: bounds,
+    tickSpacing: [1,1,1],
+    textSize: 0.05
+  })
+
+//Set up camera
+var projectionMatrix = new Array(16)
+var camera = createCamera({
+  center:  [
+    0.5*(bounds[0][0]+bounds[1][0]),
+    0.5*(bounds[0][1]+bounds[1][1]),
+    0.5*(bounds[0][2]+bounds[1][2]) ],
+  eye: [0, 0, bounds[1][2]],
+  distanceLimits: [1, 1000]
+})
+
+//Create mode drop down
+var modeSelect = document.createElement('select')
+camera.modes.forEach(function(mode) {
+  modeSelect.add(new Option(mode, mode))
+})
+modeSelect.style.position = 'absolute'
+modeSelect.style.left = '10px'
+modeSelect.style.top = '10px'
+modeSelect.style['z-index'] = 10
+document.body.appendChild(modeSelect)
+
+
+//Hook event listeners
+var lastX = 0, lastY = 0
+
+document.oncontextmenu = function(e) { 
+  e.preventDefault()
+  e.stopPropagation()
+  return false 
+}
+
+modeSelect.addEventListener('change', function(ev) {
+  camera.setMode(modeSelect.value)
+})
+
+canvas.addEventListener('mousemove', function(ev) {
+  var dx =  (ev.clientX - lastX) / gl.drawingBufferWidth
+  var dy = -(ev.clientY - lastY) / gl.drawingBufferHeight
+  if(ev.which === 1) {
+    if(ev.shiftKey) {
+      //zoom
+      camera.rotate(now(), 0, 0, dx)
+    } else {
+      //rotate
+      camera.rotate(now(), dx, dy)
+    }
+  } else if(ev.which === 3) {
+    //pan
+    camera.pan(now(), dx, dy)
+  }
+  lastX = ev.clientX
+  lastY = ev.clientY
+})
+
+canvas.addEventListener('wheel', function(e) {
+  camera.pan(now(), 0, 0, e.deltaY)
+})
+
+//Redraw frame
+function render() {
+
+  //Update camera parameters
+  var t = now()
+  camera.idle(t - 20)
+  camera.flush(t - 100)
+
+  //Compute parameters
+  var cameraParams = {
+    view: camera.getMatrix(t - 25),
+    projection: perspective(
+      [],
+      Math.PI/4.0,
+      gl.drawingBufferWidth/gl.drawingBufferHeight,
+      0.1,
+      1000.0)
+  }
+
+  //Draw everything
+  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
+  gl.enable(gl.DEPTH_TEST)
+  axes.draw(cameraParams)
+  mesh.draw(cameraParams)
+}
+```
 
 ## Constructor
 
@@ -37,6 +150,9 @@ Idles the camera at time `t`
 Flush all events in camera state before time `t`
 
 * `t` is the cut off time for the flush
+
+#### `camera.modes`
+An array of modes supported by the camera
 
 #### `camera.setMode(mode)`
 Sets the camera mode
@@ -97,15 +213,22 @@ Returns the position of the camera in world coordinates
 **Returns** the position of the camera
 
 #### `camera.getCenter(t[, out])`
-Returns the target of the camera
+Returns the target of the camera (only affects turntable and orbit mode)
 
 #### `camera.getDistance(t)`
+Returns distance to target at time `t` (only affects turntable and orbit mode)
 
 #### `camera.setDistance(t, r)`
+Sets camera distance at time `t`
+
+* `t` is the time of the event
+* `r` is the new camera distance
 
 #### `camera.setDistanceLimits(lo, hi)`
+Sets bounds on the camera distance
 
 #### `camera.getDistanceLimits([out])`
+Retrieves the camera limitsx
 
 # License
 (c) 2015 Mikola Lysenko. MIT License

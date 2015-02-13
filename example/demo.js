@@ -30,10 +30,14 @@ var commandList = [
   'Translate - Hold control + left mouse'
 ]
 
+var commandContainer = document.createElement('div')
+commandContainer.style['font-size'] = '75%'
+controlDiv.appendChild(commandContainer)
+
 commandList.forEach(function(str) {
   var container = document.createElement('p')
   container.appendChild(document.createTextNode(str))
-  controlDiv.appendChild(container)
+  commandContainer.appendChild(container)
 })
 
 function appendItem(label, item) {
@@ -92,11 +96,11 @@ var axes = createAxes(gl, {
 //Set up camera
 var projectionMatrix = new Array(16)
 var camera = createCamera({
-  radius: 50,
   center:  [
     0.5*(bounds[0][0]+bounds[1][0]),
     0.5*(bounds[0][1]+bounds[1][1]),
     0.5*(bounds[0][2]+bounds[1][2]) ],
+  eye: [0, 0, bounds[1][2]],
   distanceLimits: [1, 1000]
 })
 
@@ -115,10 +119,10 @@ modeSelect.addEventListener('change', function(ev) {
 
 canvas.addEventListener('mousemove', function(ev) {
   var dx = (ev.clientX - lastX) / gl.drawingBufferWidth
-  var dy = (ev.clientY - lastY) / gl.drawingBufferHeight
+  var dy = -(ev.clientY - lastY) / gl.drawingBufferHeight
   if(ev.which === 1) {
     if(ev.shiftKey) {
-      camera.rotate(now(), 0, 0, dx)
+      camera.rotate(now(), 0, 0, 0.1 * dx * Math.sqrt(camera.getDistance(now())))
     } else if(ev.ctrlKey) {
       camera.translate(now(), dx, dy, 0)
     } else {
