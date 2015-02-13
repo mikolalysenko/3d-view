@@ -10,6 +10,8 @@ Each camera controller proceeds by appending events onto a log of
 
 # API
 
+[Try a more complete demo here](https://mikolalysenko.github.io/3d-view)
+
 ```javascript
 var now            = require('right-now')
 var bunny          = require('bunny')
