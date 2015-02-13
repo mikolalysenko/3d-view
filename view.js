@@ -19,6 +19,7 @@ function ViewController(controllers, mode) {
     this._mode   = 'turntable'
     this._active = controllers.turntable
   }
+  this.modes = this._controllerNames
 }
 
 var proto = ViewController.prototype
@@ -31,6 +32,7 @@ var COMMON_METHODS = [
   ['pan', 4],
   ['translate', 4],
   ['setMatrix', 2],
+  ['setDistanceLimits', 2],
   ['setDistance', 2]
 ]
 
@@ -63,9 +65,6 @@ proto.getDistance = function(t) {
 }
 proto.getDistanceLimits = function(out) {
   return this._active.getDistanceLimits(out)
-}
-proto.setDistanceLimits = function(lo, hi) {
-  return this._active.setDistanceLimits(lo, hi)
 }
 
 proto.setMode = function(mode) {
@@ -100,9 +99,27 @@ proto.getMode = function() {
 
 function createViewController(options) {
   options = options || {}
+
+  var eye       = options.eye    || [0,0,1]
+  var center    = options.center || [0,0,0]
+  var up        = options.up     || [0,1,0]
+  var limits    = options.distanceLimits || [0, Infinity]
+  var mode      = options.mode   || 'turntable'
+
+  var turntable = createTurntable()
+  var orbit     = createOrbit()
+  var matrix    = createOrbit()
+
+  turntable.setDistanceLimits(limits[0], limits[1])
+  turntable.lookAt(0, eye, center, up)
+  orbit.setDistanceLimits(limits[0], limits[1])
+  orbit.lookAt(0, eye, center, up)
+  matrix.setDistanceLimits(limits[0], limits[1])
+  matrix.lookAt(0, eye, center, up)
+
   return new ViewController({
-    turntable: createTurntable(options),
-    orbit: createOrbit(options),
-    matrix: createMatrix(options),
-  }, options || 'turntable')
+    turntable: turntable,
+    orbit: orbit,
+    matrix: matrix
+  }, mode)
 }

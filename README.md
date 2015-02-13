@@ -38,6 +38,9 @@ Flush all events in camera state before time `t`
 
 * `t` is the cut off time for the flush
 
+#### `camera.modes`
+An array of modes supported by the camera
+
 #### `camera.setMode(mode)`
 Sets the camera mode
 
@@ -97,15 +100,22 @@ Returns the position of the camera in world coordinates
 **Returns** the position of the camera
 
 #### `camera.getCenter(t[, out])`
-Returns the target of the camera
+Returns the target of the camera (only affects turntable and orbit mode)
 
 #### `camera.getDistance(t)`
+Returns distance to target at time `t` (only affects turntable and orbit mode)
 
 #### `camera.setDistance(t, r)`
+Sets camera distance at time `t`
+
+* `t` is the time of the event
+* `r` is the new camera distance
 
 #### `camera.setDistanceLimits(lo, hi)`
+Sets bounds on the camera distance
 
 #### `camera.getDistanceLimits([out])`
+Retrieves the camera limitsx
 
 # License
 (c) 2015 Mikola Lysenko. MIT License
