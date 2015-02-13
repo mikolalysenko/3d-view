@@ -122,7 +122,7 @@ canvas.addEventListener('mousemove', function(ev) {
   var dy = -(ev.clientY - lastY) / gl.drawingBufferHeight
   if(ev.which === 1) {
     if(ev.shiftKey) {
-      camera.rotate(now(), 0, 0, dx/Math.sqrt(Math.abs(dx)))
+      camera.rotate(now(), 0, 0, 0.1 * dx * Math.sqrt(camera.getDistance(now())))
     } else if(ev.ctrlKey) {
       camera.translate(now(), dx, dy, 0)
     } else {
