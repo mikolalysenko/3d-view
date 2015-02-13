@@ -4,16 +4,21 @@ module.exports = createViewController
 
 var createTurntable = require('turntable-camera-controller')
 var createOrbit     = require('orbit-camera-controller')
-var createFree      = require('free-camera-controller')
 var createMatrix    = require('matrix-camera-controller')
+
+var SCRATCH = new Array(16)
 
 function ViewController(controllers, mode) {
   this._controllerNames = Object.keys(controllers)
   this._controllerList = this._controllerNames.map(function(n) {
     return controllers[n]
   })
-  this._mode        = mode
-  this._active      = controllers[mode]
+  this._mode   = mode
+  this._active = controllers[mode]
+  if(!this._active) {
+    this._mode   = 'turntable'
+    this._active = controllers.turntable
+  }
 }
 
 var proto = ViewController.prototype
@@ -26,39 +31,35 @@ var COMMON_METHODS = [
   ['zoom', 2],
   ['pan', 4],
   ['translate', 4],
-  ['move', 4],
-  ['setDistance', 2],
+  ['setZoom', 2],
   ['setMatrix', 2]
 ]
 
 var ACCESS_METHODS = [
-  ['getDistance', 1],
-  ['getUp', 2],
-  ['getCenter', 2],
-  ['getEye', 2],
-  ['getMatrix', 2]
+  ['getUp', 3],
+  ['getEye', 3],
+  ['getMatrix', 16]
 ]
+
+proto.getZoom = function(t) {
+  return this._active.getZoom(t)
+}
 
 COMMON_METHODS.forEach(function(method) {
   var name = method[0]
-  var args = method[1]
   var argNames = []
-  for(var i=0; i<argNames.length; ++i) {
+  for(var i=0; i<method[1]; ++i) {
     argNames.push('a'+i)
   }
-  var code = 'var cc=this._controllerList;for(var i=0;i<cc.length;++i){cc.'+method[0]+'('+argNames.join+')}'
+  var code = 'var cc=this._controllerList;for(var i=0;i<cc.length;++i){cc[i].'+method[0]+'('+argNames.join()+')}'
   proto[name] = Function.apply(null, argNames.concat(code))
 })
 
 ACCESS_METHODS.forEach(function(method) {
   var name = method[0]
   var args = method[1]
-  var argNames = []
-  for(var i=0; i<argNames.length; ++i) {
-    argNames.push('a'+i)
-  }
-  var code = 'return this._active.' + name + '(' + argNames.join() + ')'  
-  proto[name] = Function.apply(null, argNames.concat(code))
+  var code = 'return this._active.' + name + '(t,out||new Array(' + args + '))'  
+  proto[name] = new Function('t', 'out', code)
 })
 
 proto.setMode = function(mode) {
@@ -69,8 +70,15 @@ proto.setMode = function(mode) {
   if(idx < 0) {
     return
   }
-  var prev = this._active
-  var next = this._controllerList[idx]
+  var prev  = this._active
+  var next  = this._controllerList[idx]
+  var lastT = Math.max(prev.lastT(), next.lastT())
+
+  prev.getMatrix(lastT, SCRATCH)
+  next.setMatrix(lastT, SCRATCH)
+
+  this._active = next
+  this._mode   = mode
 }
 
 proto.getMode = function() {
@@ -78,4 +86,10 @@ proto.getMode = function() {
 }
 
 function createViewController(options) {
+  options = options || {}
+  return new ViewController({
+    turntable: createTurntable(options),
+    orbit: createOrbit(options),
+    matrix: createMatrix(options),
+  }, options || 'turntable')
 }
