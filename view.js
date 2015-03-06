@@ -67,6 +67,10 @@ proto.getDistanceLimits = function(out) {
   return this._active.getDistanceLimits(out)
 }
 
+proto.lastT = function() {
+  return this._active.lastT()
+}
+
 proto.setMode = function(mode) {
   if(mode === this._mode) {
     return
