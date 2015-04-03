@@ -96,8 +96,9 @@ function render() {
   camera.flush(t - 100)
 
   //Compute parameters
+  camera.recalcMatrix(t - 25)
   var cameraParams = {
-    view: camera.getMatrix(t - 25),
+    view: camera.computedMatrix,
     projection: perspective(
       [],
       Math.PI/4.0,
