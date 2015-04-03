@@ -211,10 +211,13 @@ The computed 4x4 matrix of the camera
 The computed 3d eye vector for the camera
 
 #### `camera.computedUp`
+Computed up vector (initialized when calling recalcMatrix)
 
 #### `camera.computedCenter`
+Computed camera center point
 
 #### `camera.computedRadius`
+Computed log(radius)
 
 # License
 (c) 2015 Mikola Lysenko. MIT License
