@@ -1,6 +1,6 @@
 {
   "name": "3d-view",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "3D camera view controller",
   "main": "view.js",
   "scripts": {
