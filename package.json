@@ -29,11 +29,12 @@
     "gl-context": "^0.1.1",
     "gl-mat4": "^1.1.2",
     "gl-simplicial-complex": "^3.0.2",
-    "right-now": "^1.0.0"
+    "right-now": "^1.0.0",
+    "tape": "^4.0.0"
   },
   "dependencies": {
-    "matrix-camera-controller": "^1.0.0",
-    "orbit-camera-controller": "^2.0.0",
-    "turntable-camera-controller": "^2.0.0"
+    "matrix-camera-controller": "^2.1.1",
+    "orbit-camera-controller": "^4.0.0",
+    "turntable-camera-controller": "^3.0.0"
   }
 }

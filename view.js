@@ -6,8 +6,6 @@ var createTurntable = require('turntable-camera-controller')
 var createOrbit     = require('orbit-camera-controller')
 var createMatrix    = require('matrix-camera-controller')
 
-var SCRATCH = new Array(16)
-
 function ViewController(controllers, mode) {
   this._controllerNames = Object.keys(controllers)
   this._controllerList = this._controllerNames.map(function(n) {
@@ -20,6 +18,11 @@ function ViewController(controllers, mode) {
     this._active = controllers.turntable
   }
   this.modes = this._controllerNames
+  this.computedMatrix = this._active.computedMatrix
+  this.computedEye    = this._active.computedEye
+  this.computedUp     = this._active.computedUp
+  this.computedCenter = this._active.computedCenter
+  this.computedRadius = this._active.computedRadius
 }
 
 var proto = ViewController.prototype
@@ -36,13 +39,6 @@ var COMMON_METHODS = [
   ['setDistance', 2]
 ]
 
-var ACCESS_METHODS = [
-  ['getUp', 3],
-  ['getEye', 3],
-  ['getCenter', 3],
-  ['getMatrix', 16]
-]
-
 COMMON_METHODS.forEach(function(method) {
   var name = method[0]
   var argNames = []
@@ -53,12 +49,9 @@ COMMON_METHODS.forEach(function(method) {
   proto[name] = Function.apply(null, argNames.concat(code))
 })
 
-ACCESS_METHODS.forEach(function(method) {
-  var name = method[0]
-  var args = method[1]
-  var code = 'return this._active.' + name + '(t,out||new Array(' + args + '))'  
-  proto[name] = new Function('t', 'out', code)
-})
+proto.recalcMatrix = function(t) {
+  this._active.recalcMatrix(t)
+}
 
 proto.getDistance = function(t) {
   return this._active.getDistance(t)
@@ -83,18 +76,18 @@ proto.setMode = function(mode) {
   var next  = this._controllerList[idx]
   var lastT = Math.max(prev.lastT(), next.lastT())
 
-  if(this._mode !== 'matrix') {
-    next.lookAt(lastT,
-      prev.getCenter(lastT),
-      prev.getEye(lastT),
-      prev.getUp(lastT))
-  }
-
-  prev.getMatrix(lastT, SCRATCH)
-  next.setMatrix(lastT, SCRATCH)
+  prev.recalcMatrix(lastT)
+  next.setMatrix(lastT, prev.computedMatrix)
   
   this._active = next
   this._mode   = mode
+
+  //Update matrix properties
+  this.computedMatrix = this._active.computedMatrix
+  this.computedEye    = this._active.computedEye
+  this.computedUp     = this._active.computedUp
+  this.computedCenter = this._active.computedCenter
+  this.computedRadius = this._active.computedRadius
 }
 
 proto.getMode = function() {

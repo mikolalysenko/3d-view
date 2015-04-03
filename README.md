@@ -133,14 +133,6 @@ function render() {
 
 ## Methods
 
-#### `camera.getMatrix(t[, out])`
-Computes the state of the camera matrix at time `t`
-
-* `t` is the time 
-* `out` is an optional length 16 array that gets the current matrix
-
-**Returns** the current view matrix
-
 #### `camera.idle(t)`
 Idles the camera at time `t`
 
@@ -196,28 +188,6 @@ Sets the camera matrix to some fixed 4x4 matrix
 * `t` is the time of the event
 * `matrix` is the new camera matrix
 
-#### `camera.getUp(t[, out])`
-Gets the up vector of the camera
-
-* `t` is the time of the event
-* `out` is a storage vector (optional) recieving the up vector
-
-**Returns** the up vector
-
-#### `camera.getEye(t[, out])`
-Returns the position of the camera in world coordinates
-
-* `t` is the time to sample
-* `out` is storage for the result
-
-**Returns** the position of the camera
-
-#### `camera.getCenter(t[, out])`
-Returns the target of the camera (only affects turntable and orbit mode)
-
-#### `camera.getDistance(t)`
-Returns distance to target at time `t` (only affects turntable and orbit mode)
-
 #### `camera.setDistance(t, r)`
 Sets camera distance at time `t`
 
@@ -228,7 +198,22 @@ Sets camera distance at time `t`
 Sets bounds on the camera distance
 
 #### `camera.getDistanceLimits([out])`
-Retrieves the camera limitsx
+Retrieves the camera limits
+
+#### `camera.recalcMatrix(t)`
+Recomputes all matrix properties at time `t`
+
+#### `camera.computedMatrix`
+The computed 4x4 matrix of the camera
+
+#### `camera.computedEye`
+The computed 3d eye vector for the camera
+
+#### `camera.computedUp`
+
+#### `camera.computedCenter`
+
+#### `camera.computedRadius`
 
 # License
 (c) 2015 Mikola Lysenko. MIT License
