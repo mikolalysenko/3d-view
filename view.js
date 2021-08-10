@@ -39,6 +39,7 @@ var COMMON_METHODS = [
   ['setDistance', 2]
 ]
 
+var allStr = ''
 COMMON_METHODS.forEach(function(method) {
   var name = method[0]
   var argNames = []
@@ -46,8 +47,11 @@ COMMON_METHODS.forEach(function(method) {
     argNames.push('a'+i)
   }
   var code = 'var cc=this._controllerList;for(var i=0;i<cc.length;++i){cc[i].'+method[0]+'('+argNames.join()+')}'
-  proto[name] = Function.apply(null, argNames.concat(code))
+  var fn = Function.apply(null, argNames.concat(code))
+  allStr += '\n' + fn.toString().replace("function anonymous", "proto." + name + ' = function')
+  proto[name] = fn
 })
+console.log(allStr)
 
 proto.recalcMatrix = function(t) {
   this._active.recalcMatrix(t)
@@ -78,7 +82,7 @@ proto.setMode = function(mode) {
 
   prev.recalcMatrix(lastT)
   next.setMatrix(lastT, prev.computedMatrix)
-  
+
   this._active = next
   this._mode   = mode
 
