@@ -27,27 +27,60 @@ function ViewController(controllers, mode) {
 
 var proto = ViewController.prototype
 
-var COMMON_METHODS = [
-  ['flush', 1],
-  ['idle', 1],
-  ['lookAt', 4],
-  ['rotate', 4],
-  ['pan', 4],
-  ['translate', 4],
-  ['setMatrix', 2],
-  ['setDistanceLimits', 2],
-  ['setDistance', 2]
-]
-
-COMMON_METHODS.forEach(function(method) {
-  var name = method[0]
-  var argNames = []
-  for(var i=0; i<method[1]; ++i) {
-    argNames.push('a'+i)
+proto.flush = function(a0) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].flush(a0)
   }
-  var code = 'var cc=this._controllerList;for(var i=0;i<cc.length;++i){cc[i].'+method[0]+'('+argNames.join()+')}'
-  proto[name] = Function.apply(null, argNames.concat(code))
-})
+}
+proto.idle = function(a0) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].idle(a0)
+  }
+}
+proto.lookAt = function(a0, a1, a2, a3) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].lookAt(a0, a1, a2, a3)
+  }
+}
+proto.rotate = function(a0, a1, a2, a3) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].rotate(a0, a1, a2, a3)
+  }
+}
+proto.pan = function(a0, a1, a2, a3) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].pan(a0, a1, a2, a3)
+  }
+}
+proto.translate = function(a0, a1, a2, a3) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].translate(a0, a1, a2, a3)
+  }
+}
+proto.setMatrix = function(a0, a1) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].setMatrix(a0, a1)
+  }
+}
+proto.setDistanceLimits = function(a0, a1) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].setDistanceLimits(a0, a1)
+  }
+}
+proto.setDistance = function(a0, a1) {
+  var cc = this._controllerList
+  for (var i = 0; i < cc.length; ++i) {
+    cc[i].setDistance(a0, a1)
+  }
+}
 
 proto.recalcMatrix = function(t) {
   this._active.recalcMatrix(t)
@@ -78,7 +111,7 @@ proto.setMode = function(mode) {
 
   prev.recalcMatrix(lastT)
   next.setMatrix(lastT, prev.computedMatrix)
-  
+
   this._active = next
   this._mode   = mode
 
